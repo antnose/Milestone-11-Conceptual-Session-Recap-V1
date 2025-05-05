@@ -1,13 +1,70 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 import { AuthContext } from "../provider/AuthProvider";
+import axios from "axios";
+import toast from "react-hot-toast";
+
+// React Date Picker package
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const JobDetails = () => {
+  // React DatePicker state
+  const [startDate, setStartDate] = useState(new Date());
+
   const job = useLoaderData();
   const { user } = useContext(AuthContext);
-  const { category, job_title, min_price, max_price, deadline, description } =
-    job || {};
+  const {
+    _id,
+    category,
+    job_title,
+    min_price,
+    max_price,
+    deadline,
+    description,
+    buyer_email,
+  } = job || {};
 
+  const handleFormSubmission = async (e) => {
+    // Check is buyer are seller or not
+    if (user?.email === buyer_email) return toast.error("Action not permitted");
+
+    e.preventDefault();
+    const form = e.target;
+    const jobId = _id;
+
+    const price = parseFloat(form.price.value);
+    // Price Validation
+    if (price < min_price)
+      return toast.error("Offer more or at least equal to minimum price");
+
+    const email = form.email.value;
+    const comment = form.comment.value;
+    const deadline = startDate;
+    const status = "Pending";
+
+    const bidData = {
+      jobId,
+      price,
+      email,
+      comment,
+      buyer_email,
+      status,
+      category,
+      deadline,
+      job_title,
+    };
+
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/bid`,
+        bidData
+      );
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <div className="flex flex-col md:flex-row justify-around gap-5  items-center min-h-[calc(100vh-306px)] md:max-w-screen-xl mx-auto ">
       {/* Job Details */}
@@ -52,7 +109,7 @@ const JobDetails = () => {
           Place A Bid
         </h2>
 
-        <form>
+        <form onSubmit={handleFormSubmission}>
           <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
             <div>
               <label className="text-gray-700 " htmlFor="price">
@@ -95,6 +152,11 @@ const JobDetails = () => {
               <label className="text-gray-700">Deadline</label>
 
               {/* Date Picker Input Field */}
+              <DatePicker
+                className="text-black border p-2 rounded-md "
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+              />
             </div>
           </div>
 
