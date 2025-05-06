@@ -54,11 +54,27 @@ async function run() {
       res.send(result);
     });
 
-    //  Save a job in bd
+    //  Save a job data in bd
     app.post("/job", async (req, res) => {
       const jobData = req.body;
       console.log(jobData);
       const result = await jobsCollection.insertOne(jobData);
+      res.send(result);
+    });
+
+    // set all jobs posted by specific user
+    app.get("/jobs/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { "buyer.email": email };
+      const result = await jobsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // Delete a job data from db
+    app.delete("/job/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jobsCollection.deleteOne(query);
       res.send(result);
     });
 
