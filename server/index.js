@@ -7,15 +7,15 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Cors config
-const corsOption = {
-  origin: ["http://localhost:5173"],
-  credential: true,
-  optionSuccessStatus: 200,
-};
+// const corsOption = {
+//   origin: ["http://localhost:5175/"],
+//   credential: true,
+//   optionSuccessStatus: 200,
+// };
 
 // All Middle Ware is here
 app.use(express.json());
-app.use(cors(corsOption));
+app.use(cors());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.to58y.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -75,6 +75,22 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await jobsCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // update a job in db
+    app.put("/job/:id", async (req, res) => {
+      const id = req.params.id;
+      const jobData = req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          ...jobData,
+        },
+      };
+
+      const result = await jobsCollection.updateOne(query, updateDoc, options);
       res.send(result);
     });
 
