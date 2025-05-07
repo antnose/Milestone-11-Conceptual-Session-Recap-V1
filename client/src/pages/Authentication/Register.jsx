@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../provider/AuthProvider";
 import toast from "react-hot-toast";
 import bgImage from "../../assets/images/register.jpg";
@@ -8,8 +8,10 @@ import { updateProfile } from "firebase/auth";
 
 const Register = () => {
   const navigate = useNavigate();
-  const { signInWithGoogle, createUser, updateUserProfile, user, setUser } =
+  const location = useLocation();
+  const { signInWithGoogle, createUser, user, setUser } =
     useContext(AuthContext);
+  const from = location.state || "/";
 
   // Another SignIn
   const handleSignUp = async (e) => {
@@ -27,7 +29,7 @@ const Register = () => {
       console.log(result);
       await updateProfile(name, photo);
       setUser({ ...user, photoURL: photo, displayName: name });
-      navigate("/");
+      navigate(from, { replace: true });
       toast.success("Signup successful");
     } catch (err) {
       console.log(err);
@@ -40,7 +42,7 @@ const Register = () => {
     try {
       await signInWithGoogle();
       toast.success("Signin successfully");
-      navigate("/");
+      navigate(from, { replace: true });
     } catch (err) {
       console.log(err);
       toast.error(err?.message);
