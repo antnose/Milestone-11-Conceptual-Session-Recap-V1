@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { Navigate, useLoaderData, useNavigate } from "react-router-dom";
 import { AuthContext } from "../provider/AuthProvider";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -10,6 +10,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const JobDetails = () => {
   // React DatePicker state
+  const navigate = useNavigate();
   const [startDate, setStartDate] = useState(new Date());
 
   const job = useLoaderData();
@@ -39,7 +40,7 @@ const JobDetails = () => {
     if (price < min_price)
       return toast.error("Offer more or at least equal to minimum price");
 
-    const email = form.email.value;
+    const email = user?.email;
     const comment = form.comment.value;
     const deadline = startDate;
     const status = "Pending";
@@ -47,13 +48,14 @@ const JobDetails = () => {
     const bidData = {
       jobId,
       price,
-      email,
+      deadline,
       comment,
+      job_title,
+      category,
+      email,
       buyer_email: buyer?.email,
       status,
-      category,
-      deadline,
-      job_title,
+      buyer,
     };
 
     try {
@@ -62,6 +64,8 @@ const JobDetails = () => {
         bidData
       );
       console.log(data);
+      toast.success("Bid placed successfully");
+      navigate("/my-bids");
     } catch (err) {
       console.log(err);
     }

@@ -9,15 +9,8 @@ const UpdateJob = () => {
   const navigate = useNavigate();
   const job = useLoaderData();
   const { user } = useContext(AuthContext);
-  const {
-    _id,
-    job_title,
-    deadline,
-    category,
-    min_price,
-    max_price,
-    description,
-  } = job;
+  const { _id, job_title, category, min_price, max_price, description } = job;
+
   const [startDate, setStartDate] = useState(new Date());
 
   const handleFormSubmit = async (e) => {
