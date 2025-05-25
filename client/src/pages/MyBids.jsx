@@ -19,14 +19,20 @@ const MyBids = () => {
     setBids(data);
   };
 
-  console.log(bids);
+  const handleStatus = async (id) => {
+    const { data } = await axios.patch(
+      `${import.meta.env.VITE_API_URL}/bid/${id}`,
+      { status: "Complete" }
+    );
+    getData();
+  };
   return (
     <section className="container px-4 mx-auto pt-12">
       <div className="flex items-center gap-x-3">
         <h2 className="text-lg font-medium text-gray-800 ">My Bids</h2>
 
         <span className="px-3 py-1 text-xs text-blue-600 bg-blue-100 rounded-full ">
-          {bids.length()} Bid
+          {bids.length} Bid
         </span>
       </div>
 
@@ -82,7 +88,7 @@ const MyBids = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 ">
-                  {bids.map((bid) => {
+                  {bids.map((bid) => (
                     <tr key={bid._id}>
                       <td className="px-4 py-4 text-sm text-gray-500  whitespace-nowrap">
                         {bid.job_title}
@@ -125,8 +131,8 @@ const MyBids = () => {
                       </td>
                       <td className="px-4 py-4 text-sm whitespace-nowrap">
                         <button
-                          disabled={bid.status !== "In Progress"}
-                          // onClick={() => handleStatus(bid._id)}
+                          disabled={bid.status !== "In Process"}
+                          onClick={() => handleStatus(bid._id)}
                           title="Mark Complete"
                           className="text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none disabled:cursor-not-allowed"
                         >
@@ -146,8 +152,8 @@ const MyBids = () => {
                           </svg>
                         </button>
                       </td>
-                    </tr>;
-                  })}
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
