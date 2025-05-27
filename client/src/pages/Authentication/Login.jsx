@@ -4,6 +4,7 @@ import logo from "../../assets/images/logo.png";
 import { useContext, useEffect } from "react";
 import { AuthContext } from "../../provider/AuthProvider";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,7 +20,11 @@ const Login = () => {
   // Google Signin
   const hendleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle();
+      const result = await signInWithGoogle();
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/jwt`, {
+        email: result?.user?.email,
+      });
+      console.log(data);
       toast.success("Signin successfully");
       navigate(from, { replace: true });
     } catch (err) {
