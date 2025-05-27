@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import bgImage from "../../assets/images/register.jpg";
 import logo from "../../assets/images/logo.png";
 import { updateProfile } from "firebase/auth";
+import axios from "axios";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -28,7 +29,17 @@ const Register = () => {
       const result = await createUser(email, pass);
       console.log(result);
       await updateProfile(name, photo);
-      setUser({ ...user, photoURL: photo, displayName: name });
+      // Optimistic User
+      setUser({ ...result?.user, photoURL: photo, displayName: name });
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/jwt`,
+        {
+          email: result?.user?.email,
+        },
+        { withCredentials: true }
+      );
+      console.log(data);
+
       navigate(from, { replace: true });
       toast.success("Signup successful");
     } catch (err) {
@@ -40,7 +51,16 @@ const Register = () => {
   // Google SignIn
   const hendleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle();
+      const result = await signInWithGoogle();
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/jwt`,
+        {
+          email: result?.user?.email,
+        },
+        { withCredentials: true }
+      );
+      console.log(data);
+
       toast.success("Signin successfully");
       navigate(from, { replace: true });
     } catch (err) {
@@ -200,3 +220,4 @@ const Register = () => {
 };
 
 export default Register;
+// 1.17.47

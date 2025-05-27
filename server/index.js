@@ -9,7 +9,12 @@ const cookieParser = require("cookie-parser");
 
 // Cors config
 // const corsOption = {
-//   origin: ["http://localhost:5175/"],
+//   origin: [
+//     "http://localhost:5175",
+//     "http://localhost:5174",
+//     "http://localhost:5173",
+//     "http://localhost:5000",
+//   ],
 //   credential: true,
 //   optionSuccessStatus: 200,
 // };
@@ -44,6 +49,18 @@ async function run() {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        })
+        .send({ succss: true });
+    });
+
+    // Clear Token on Logout
+    app.post("/logout", (req, res) => {
+      res
+        .clearCookie("token", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+          maxAge: 0,
         })
         .send({ succss: true });
     });
