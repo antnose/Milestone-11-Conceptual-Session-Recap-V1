@@ -8,20 +8,33 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 
 // Cors config
-// const corsOption = {
-//   origin: [
-//     "http://localhost:5175",
-//     "http://localhost:5174",
-//     "http://localhost:5173",
-//     "http://localhost:5000",
-//   ],
-//   credential: true,
-//   optionSuccessStatus: 200,
-// };
+const corsOption = {
+  origin: "http://localhost:5173",
+  credentials: true,
+  optionSuccessStatus: 200,
+};
 
 // All Middle Ware is here
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOption));
+app.use(cookieParser());
+
+// Verify jwt middleware
+const verifyToken = async (req, res, next) => {
+  const token = req.cookies?.token;
+  if (!token) return res.status(401).send({ message: "Unauthorized access" });
+  if (token) {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(401).send({ message: "Unauthorized access" });
+      }
+      console.log(decoded);
+      req.user = decoded;
+      next();
+    });
+  }
+  console.log(token);
+};
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.to58y.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -96,8 +109,12 @@ async function run() {
     });
 
     // set all jobs posted by specific user
-    app.get("/jobs/:email", async (req, res) => {
+    app.get("/jobs/:email", verifyToken, async (req, res) => {
+      const tokenEmail = req.user.email;
       const email = req.params.email;
+      if (tokenEmail !== email) {
+        return res.status(403).send({ message: "Forbidden Access" });
+      }
       const query = { "buyer.email": email };
       const result = await jobsCollection.find(query).toArray();
       res.send(result);
@@ -112,7 +129,7 @@ async function run() {
     });
 
     // update a job in db
-    app.put("/job/:id", async (req, res) => {
+    app.put("/job/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const jobData = req.body;
       const query = { _id: new ObjectId(id) };
@@ -128,7 +145,7 @@ async function run() {
     });
 
     // get all bids for a user by email from db
-    app.get("/my-bids/:email", async (req, res) => {
+    app.get("/my-bids/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email };
       const result = await bidsCollection.find(query).toArray();
@@ -148,7 +165,7 @@ async function run() {
     });
 
     // Get all bid request from job owner
-    app.get("/bid-requests/:email", async (req, res) => {
+    app.get("/bid-requests/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { "buyer.email": email };
       const result = await bidsCollection.find(query).toArray();

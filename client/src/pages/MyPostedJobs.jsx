@@ -8,15 +8,39 @@ const MyPostedJobs = () => {
   const { user } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
 
+  // Old According to tutorial
+  // useEffect(() => {
+  //   getData();
+  // }, [user]);
+
+  // New According to chatGpt
   useEffect(() => {
-    getData();
+    if (user?.email) {
+      getData();
+    }
   }, [user]);
 
+  // Old According to tutorial
+  // const getData = async () => {
+  //   const { data } = await axios(
+  //     `${import.meta.env.VITE_API_URL}/jobs/${user?.email}`,
+  //     { withCredentials: true }
+  //   );
+  //   setJobs(data);
+  // };
+
+  // New According to chatGpt
   const getData = async () => {
-    const { data } = await axios(
-      `${import.meta.env.VITE_API_URL}/jobs/${user?.email}`
-    );
-    setJobs(data);
+    try {
+      const { data } = await axios(
+        `${import.meta.env.VITE_API_URL}/jobs/${user?.email}`,
+        { withCredentials: true }
+      );
+      setJobs(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load jobs.");
+    }
   };
 
   const handleDelete = async (id) => {
@@ -96,8 +120,8 @@ const MyPostedJobs = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 ">
-                  {jobs.map((job, idx) => (
-                    <tr key={idx}>
+                  {jobs.map((job) => (
+                    <tr key={job._id}>
                       <td className="px-4 py-4 text-sm text-gray-500  whitespace-nowrap">
                         {job.job_title}
                       </td>
