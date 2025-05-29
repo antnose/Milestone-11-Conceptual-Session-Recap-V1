@@ -1,34 +1,55 @@
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../provider/AuthProvider";
-import axios from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import useAxiosSecure from "../hooks/useAxiosSecure";
+import useAuth from "../hooks/useAuth";
+import toast from "react-hot-toast";
 
 const BidRequests = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
-  const [bids, setBids] = useState([]);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    getData();
-  }, [user]);
+  const { data: bids = [], isLoading } = useQuery({
+    queryFn: () => getData(),
+    queryKey: ["bids", user?.email],
+  });
+  console.log(bids);
+  console.log(isLoading);
+
+  // const [bids, setBids] = useState([]);
+  // useEffect(() => {
+  // getData();
+  // }, [user]);
 
   const getData = async () => {
-    const { data } = await axios(
-      `${import.meta.env.VITE_API_URL}/bid-requests/${user?.email}`
-    );
-    setBids(data);
+    const { data } = await axiosSecure(`/bid-requests/${user?.email}`);
+    return data;
   };
+
+  const { mutateAsync } = useMutation({
+    mutationFn: async ({ id, status }) => {
+      const { data } = await axiosSecure.patch(`/bid/${id}`, { status });
+      return data;
+    },
+    onSuccess: () => {
+      console.log(`Wow data updated`);
+      toast.success("Updated");
+      // Refresh UI for latest data
+      // refetch();
+      queryClient.invalidateQueries({
+        queryKey: ["bids"],
+      });
+    },
+  });
 
   // Handle Status
   const handleStatus = async (id, prevStatus, status) => {
-    if (prevStatus === status) return;
-    console.log(id, prevStatus, status);
-    const { data } = await axios.patch(
-      `${import.meta.env.VITE_API_URL}/bid/${id}`,
-      { status }
-    );
-    console.log(data);
-    getData();
+    if (prevStatus === status)
+      return console.log(`Sorry this process not be complete`);
+    await mutateAsync({ id, status });
   };
+
+  if (isLoading) return <p>Data is still loading..........</p>;
 
   return (
     <section className="container px-4 mx-auto pt-12">
@@ -195,4 +216,3 @@ const BidRequests = () => {
 };
 
 export default BidRequests;
-// 16.08
