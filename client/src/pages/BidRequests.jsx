@@ -21,6 +21,8 @@ const BidRequests = () => {
   // getData();
   // }, [user]);
 
+  // 38.30
+
   const getData = async () => {
     const { data } = await axiosSecure(`/bid-requests/${user?.email}`);
     return data;
