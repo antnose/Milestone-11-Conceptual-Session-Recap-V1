@@ -181,4 +181,3 @@ const JobDetails = () => {
 };
 
 export default JobDetails;
-// 49.18
