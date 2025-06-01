@@ -4,20 +4,34 @@ import axios from "axios";
 
 const AllJobs = () => {
   const [itemsPerPage, setitemsPerPage] = useState(2);
+  const [currentPage, setCurrentPage] = useState(1);
   const [count, setCount] = useState(0);
   const [jobs, setJobs] = useState([]);
   useEffect(() => {
     const getData = async () => {
-      const { data } = await axios(`${import.meta.env.VITE_API_URL}/jobs`);
+      const { data } = await axios(
+        `${import.meta.env.VITE_API_URL}/all-jobs?page=`
+      );
       setJobs(data);
-      setCount(data.length);
     };
     getData();
   }, []);
 
+  useEffect(() => {
+    const getCount = async () => {
+      const { data } = await axios(
+        `${import.meta.env.VITE_API_URL}/jobs-count`
+      );
+      setCount(data.count);
+    };
+    getCount();
+  }, []);
+
+  const numberOfPages = Math.ceil(count / itemsPerPage);
   const pages = [
     ...Array(Math.ceil(count / itemsPerPage)).keys(count / itemsPerPage),
   ].map((element) => element + 1);
+
   return (
     <div className="container px-6 py-10 mx-auto min-h-[calc(100vh-306px)] flex flex-col justify-between">
       <div>
@@ -131,4 +145,4 @@ const AllJobs = () => {
 };
 
 export default AllJobs;
-// 1.10
+// 1.16 hours

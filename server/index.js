@@ -176,6 +176,18 @@ async function run() {
       res.send(result);
     });
 
+    // Get all jobs data from db for pagination
+    app.get("/all-jobs", async (req, res) => {
+      const result = await jobsCollection.find().toArray();
+      res.send(result);
+    });
+
+    // Get all jobs data count
+    app.get("/jobs-count", async (req, res) => {
+      const count = await jobsCollection.countDocuments();
+      res.send({ count });
+    });
+
     // Get all bid request from job owner
     app.get("/bid-requests/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
