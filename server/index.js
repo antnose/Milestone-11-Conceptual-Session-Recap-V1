@@ -178,7 +178,14 @@ async function run() {
 
     // Get all jobs data from db for pagination
     app.get("/all-jobs", async (req, res) => {
-      const result = await jobsCollection.find().toArray();
+      const size = parseInt(req.query.size);
+      const page = parseInt(req.query.page) - 1;
+      console.log(size, page);
+      const result = await jobsCollection
+        .find()
+        .skip(page)
+        .limit(size)
+        .toArray();
       res.send(result);
     });
 
