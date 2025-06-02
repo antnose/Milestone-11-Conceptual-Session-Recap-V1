@@ -180,9 +180,12 @@ async function run() {
     app.get("/all-jobs", async (req, res) => {
       const size = parseInt(req.query.size);
       const page = parseInt(req.query.page) - 1;
-      console.log(size, page);
+      const filter = req.query.filter;
+      let query = {};
+      if (filter) query = { category: filter };
+
       const result = await jobsCollection
-        .find()
+        .find(query)
         .skip(page)
         .limit(size)
         .toArray();

@@ -3,21 +3,23 @@ import JobCard from "../components/JobCard";
 import axios from "axios";
 
 const AllJobs = () => {
-  const [itemsPerPage, setitemsPerPage] = useState(1);
+  const [itemsPerPage, setitemsPerPage] = useState(4);
   const [currentPage, setCurrentPage] = useState(1);
   const [count, setCount] = useState(0);
   const [jobs, setJobs] = useState([]);
+  const [filter, setFilter] = useState("");
+
   useEffect(() => {
     const getData = async () => {
       const { data } = await axios(
         `${
           import.meta.env.VITE_API_URL
-        }/all-jobs?page=${currentPage}&size=${itemsPerPage}`
+        }/all-jobs?page=${currentPage}&size=${itemsPerPage}&filter=${filter}`
       );
       setJobs(data);
     };
     getData();
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, filter, itemsPerPage]);
 
   useEffect(() => {
     const getCount = async () => {
@@ -45,6 +47,8 @@ const AllJobs = () => {
         <div className="flex flex-col md:flex-row justify-center items-center gap-5 ">
           <div>
             <select
+              onChange={(e) => setFilter(e.target.value)}
+              value={filter}
               name="category"
               id="category"
               className="border p-4 rounded-lg"
@@ -163,4 +167,3 @@ const AllJobs = () => {
 };
 
 export default AllJobs;
-// p-5-> 18.09
