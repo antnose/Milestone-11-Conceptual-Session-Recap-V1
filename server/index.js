@@ -181,6 +181,7 @@ async function run() {
       const size = parseInt(req.query.size);
       const page = parseInt(req.query.page) - 1;
       const filter = req.query.filter;
+
       let query = {};
       if (filter) query = { category: filter };
 
@@ -194,13 +195,16 @@ async function run() {
 
     // Get all jobs data count
     app.get("/jobs-count", async (req, res) => {
-      const count = await jobsCollection.countDocuments();
+      const filter = req.query.filter;
+      let query = {};
+      if (filter) query = { category: filter };
+      const count = await jobsCollection.countDocuments(query);
       res.send({ count });
     });
 
     // Get all bid request from job owner
     app.get("/bid-requests/:email", verifyToken, async (req, res) => {
-      const email = req.params.email;
+      const email = req.query.email;
       const query = { "buyer.email": email };
       const result = await bidsCollection.find(query).toArray();
       res.send(result);
