@@ -6,21 +6,22 @@ const AllJobs = () => {
   const [itemsPerPage, setitemsPerPage] = useState(4);
   const [currentPage, setCurrentPage] = useState(1);
   const [count, setCount] = useState(0);
-  const [jobs, setJobs] = useState([]);
   const [filter, setFilter] = useState("");
+  const [sort, setSort] = useState("");
+  const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
     const getData = async () => {
       const { data } = await axios(
         `${
           import.meta.env.VITE_API_URL
-        }/all-jobs?page=${currentPage}&size=${itemsPerPage}&filter=${filter}`
+        }/all-jobs?page=${currentPage}&size=${itemsPerPage}&filter=${filter}&sort=${sort}`
       );
       setJobs(data);
       // setCount(data.length);
     };
     getData();
-  }, [currentPage, filter, itemsPerPage]);
+  }, [currentPage, filter, itemsPerPage, sort]);
 
   useEffect(() => {
     const getCount = async () => {
@@ -80,8 +81,13 @@ const AllJobs = () => {
           </form>
           <div>
             <select
-              name="category"
-              id="category"
+              onChange={(e) => {
+                setSort(e.target.value);
+                setCurrentPage(1);
+              }}
+              value={sort}
+              name="sort"
+              id="sort"
               className="border p-4 rounded-md"
             >
               <option value="">Sort By Deadline</option>
@@ -170,3 +176,4 @@ const AllJobs = () => {
 };
 
 export default AllJobs;
+// 0.40
